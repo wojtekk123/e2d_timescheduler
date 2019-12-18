@@ -1,0 +1,39 @@
+
+server:
+  port: 8082
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: e2d_timescheduler
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${POSTGRES_HOST:postgres}:5432/${POSTGRES_NAME:postgres}?currentSchema=${POSTGRES_SCHEMA:${spring.application.name}}&stringtype=unspecified&ApplicationName=${spring.application.name}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:1234}
+  flyway:
+    url: jdbc:postgresql://${POSTGRES_HOST:postgres}:5432/${POSTGRES_NAME:postgres}
+    schemas: ${POSTGRES_SCHEMA:${spring.application.name}}
+    user: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:1234}
+    baseline-on-migrate: true
+
+management:
+  context-path: /admin
+
+eureka:
+  password: password
+  instance:
+    hostname: ${HOST:localhost}
+    registryFetchIntervalSeconds: 3
+    leaseRenewalIntervalInSeconds: 5
+    statusPageUrlPath: ${management.context-path}/info
+    healthCheckUrlPath: ${management.context-path}/health
+    metadataMap:
+      instanceId: ${spring.application.name}
+      management:
+  client:
+    initialInstanceInfoReplicationIntervalSeconds: 5
+    serviceUrl:
+      defaultZone: http://${DISCOVERY_HOST:${HOST:localhost}}:${DISCOVERY_PORT:8761}/eureka/
