@@ -27,6 +27,22 @@ public class RideController implements RideApi {
 
     @Override
     public ResponseEntity<Ride> updateRide(Long id, @Valid Ride ride) {
-        return rideService.update(id,ride);
+        return rideService.update(id, ride);
     }
+
+    @Override
+    public ResponseEntity<Void> doneRide(Long id) {
+        return rideService.done(id);
+    }
+
+    @Override
+    public ResponseEntity<Void> startRide(Long id) {
+        return rideService.start(id);
+    }
+
+    @Override
+    public ResponseEntity<Void> cancelRide(Long id) {
+        return rideService.cancel(id);
+    }
+
 }

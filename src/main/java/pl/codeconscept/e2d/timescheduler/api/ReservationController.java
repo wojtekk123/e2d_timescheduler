@@ -14,9 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReservationController implements ReservationApi {
 
-
     private final ReservationService reservationService;
-
 
     @Override
     public ResponseEntity<Void> approveReservation(Long id) {

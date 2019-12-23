@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import pl.codeconscept.e2d.timescheduler.database.enums.ReservationType;
+import pl.codeconscept.e2d.timescheduler.database.enums.ScheduleType;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -42,7 +42,7 @@ public class RideEntity {
 
     @NonNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "reservation_type")
-    private ReservationType Type;
+    @Column(name = "schedule_type")
+    private ScheduleType Type;
 
 }

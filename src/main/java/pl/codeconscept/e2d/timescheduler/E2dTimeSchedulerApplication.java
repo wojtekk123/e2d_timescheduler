@@ -12,6 +12,5 @@ public class E2dTimeSchedulerApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(E2dTimeSchedulerApplication.class, args);
-
     }
 }

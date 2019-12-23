@@ -4,9 +4,9 @@ package pl.codeconscept.e2d.timescheduler.service;
 import java.util.Date;
 import java.util.List;
 
-public abstract class ConflictDate {
+public abstract class ConflictDateAbstract {
 
-    abstract public <T> List<T> idConflict(Date dateFrom, Date dateTo);
+    abstract protected  <T> List<T> idConflict(Date dateFrom, Date dateTo);
 
     //dataStart form ride : 15:00:00
     //dateEnd form ride : 17:55:00

@@ -93,7 +93,7 @@ public class JwtAuthFilter extends BasicAuthenticationFilter {
         return token;
     }
 
-    public void setToken(String token) {
+    private void setToken(String token) {
         this.token = token;
     }
 }

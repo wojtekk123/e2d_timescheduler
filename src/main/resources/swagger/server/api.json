@@ -107,6 +107,89 @@
       }
     },
 
+
+    "/ride/start/{id}": {
+      "patch": {
+        "tags": [
+          "ride"
+        ],
+        "summary": "start ride",
+        "operationId": "startRide",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+
+
+    "/ride/done/{id}": {
+      "patch": {
+        "tags": [
+          "ride"
+        ],
+        "summary": "Done ride",
+        "operationId": "DoneRide",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+
+
+    "/ride/cancel/{id}": {
+      "patch": {
+        "tags": [
+          "ride"
+        ],
+        "summary": "Cancel ride",
+        "operationId": "cancelRide",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+
+
+
+
+
+
+
+
+
     "/reservation/add": {
       "post": {
         "tags": [
@@ -237,6 +320,9 @@
         "id": {
           "type": "integer",
           "format": "int64"
+        },
+        "userName": {
+          "type": "string"
         }
       }
     },
@@ -304,8 +390,29 @@
           "type": "string"
         }
       }
-    }
+    },
 
+    "History": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "idScheduler": {
+          "$ref": "#/definitions/Ride"
+        },
+        "studentName": {
+          "type": "string"
+        },
+        "instructorName": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        }
+      }
+    }
   },
   "externalDocs": {
     "description": "Find out more about Swagger",

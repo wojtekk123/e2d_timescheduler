@@ -2,7 +2,9 @@ package pl.codeconscept.e2d.timescheduler.service.mapper;
 
 import pl.codeconcept.e2d.e2dmasterdata.model.Reservation;
 import pl.codeconscept.e2d.timescheduler.database.entity.ReservationEntity;
+import pl.codeconscept.e2d.timescheduler.database.entity.RideEntity;
 import pl.codeconscept.e2d.timescheduler.database.enums.ReservationType;
+import pl.codeconscept.e2d.timescheduler.database.enums.ScheduleType;
 
 public class ReservationMapper {
 
@@ -30,8 +32,11 @@ public class ReservationMapper {
         return reservation;
     }
 
-
     public static void mapToReservationType(ReservationEntity reservationEntity, ReservationType type) {
         reservationEntity.setType(type);
+    }
+
+    public static void mapToRideType(RideEntity rideEntity, ScheduleType type) {
+        rideEntity.setType(type);
     }
 }

@@ -6,8 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import pl.codeconcept.e2d.e2dmasterdata.model.Reservation;
+import pl.codeconcept.e2d.e2dmasterdata.model.UserId;
 import pl.codeconscept.e2d.timescheduler.database.entity.ReservationEntity;
 import pl.codeconscept.e2d.timescheduler.database.enums.ReservationType;
+import pl.codeconscept.e2d.timescheduler.database.enums.ScheduleType;
 import pl.codeconscept.e2d.timescheduler.database.repository.ReservationRepo;
 import pl.codeconscept.e2d.timescheduler.database.repository.RideRepo;
 import pl.codeconscept.e2d.timescheduler.exception.E2DIllegalArgument;
@@ -25,7 +27,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class ReservationService extends ConflictDate {
+public class ReservationService extends ConflictDateAbstract {
 
     private final PrivilegeService privilegeService;
     private final ReservationRepo reservationRepo;
@@ -38,7 +40,6 @@ public class ReservationService extends ConflictDate {
         Long authId = privilegeService.getAuthId();
         String token = jwtAuthFilter.getToken();
         String role = privilegeService.getRole();
-
 
         try {
 
@@ -54,7 +55,7 @@ public class ReservationService extends ConflictDate {
                         }
                     });
                 }
-                return getReservationResponseEntity(reservation, templateRestQueries.getStudentId(token, authId));
+                return getReservationResponseEntity(reservation, templateRestQueries.getStudentId(token, authId).getId());
             }
             return getReservationResponseEntity(reservation, reservation.getStudentId());
 
@@ -72,7 +73,6 @@ public class ReservationService extends ConflictDate {
 
     }
 
-
     public ResponseEntity<Void> delete(Long id) {
 
         Long authId = privilegeService.getAuthId();
@@ -88,8 +88,9 @@ public class ReservationService extends ConflictDate {
 
             } else if (reservationEntity.getType().equals(ReservationType.OPEN)) {
                 ReservationEntity byStudentId = reservationRepo.findByStudentId(reservationEntity.getStudentId());
+                UserId studentId = templateRestQueries.getStudentId(jwtAuthFilter.getToken(), authId);
 
-                if (!role.equals("ROLE_STUDENT") || templateRestQueries.getStudentId(jwtAuthFilter.getToken(), authId).equals(byStudentId.getStudentId())) {
+                if (!role.equals("ROLE_STUDENT") || studentId.getId().equals(byStudentId.getStudentId())) {
                     reservationRepo.delete(reservationEntity);
                     return ResponseEntity.ok().build();
                 }
@@ -103,11 +104,10 @@ public class ReservationService extends ConflictDate {
         } catch (IllegalArgumentException e) {
             throw new E2DIllegalArgument("delete id: " + id);
         }
-
     }
 
-
     public ResponseEntity<List<Reservation>> getAll() {
+
         Long authId = privilegeService.getAuthId();
         String role = privilegeService.getRole();
 
@@ -125,7 +125,6 @@ public class ReservationService extends ConflictDate {
         return new ResponseEntity<>(collect, HttpStatus.OK);
     }
 
-
     public ResponseEntity<Void> approve(Long id) {
 
         try {
@@ -137,7 +136,7 @@ public class ReservationService extends ConflictDate {
 
             ReservationMapper.mapToReservationType(reservationEntity, ReservationType.APPROVE);
             reservationRepo.save(reservationEntity);
-            rideRepo.save(RideMapper.mapToEntity(RideMapper.mapToRide(reservationEntity), reservationEntity.getInstructorId(), ReservationType.APPROVE));
+            rideRepo.save(RideMapper.mapToEntity(RideMapper.mapToRide(reservationEntity), reservationEntity.getInstructorId(), ScheduleType.PLANNED));
             return ResponseEntity.ok().build();
 
         } catch (IllegalArgumentException e) {
@@ -147,12 +146,15 @@ public class ReservationService extends ConflictDate {
 
     public ResponseEntity<Void> decline(Long id) {
 
-        ReservationEntity reservationEntity = reservationRepo.findById(id).orElseThrow(IllegalArgumentException::new);
+        try {
+            ReservationEntity reservationEntity = reservationRepo.findById(id).orElseThrow(IllegalArgumentException::new);
+            ReservationMapper.mapToReservationType(reservationEntity, ReservationType.DECLINE);
+            reservationRepo.save(reservationEntity);
+            return ResponseEntity.ok().build();
 
-        ReservationMapper.mapToReservationType(reservationEntity, ReservationType.DECLINE);
-        reservationRepo.save(reservationEntity);
-        return ResponseEntity.ok().build();
-
+        } catch (IllegalArgumentException e) {
+            throw new E2DIllegalArgument("Wrong id");
+        }
     }
 
     @Override
@@ -166,10 +168,7 @@ public class ReservationService extends ConflictDate {
         } else return collect;
     }
 
-    private ResponseEntity<Reservation> getReservationResponseEntity(Reservation reservation, Long studentid) throws ConnectIOException {
-        ReservationEntity reservationEntity = reservationRepo.save(ReservationMapper.mapToEntity(reservation, studentid, ReservationType.OPEN));
+    private ResponseEntity<Reservation> getReservationResponseEntity(Reservation reservation, Long studentId) throws ConnectIOException {
+        ReservationEntity reservationEntity = reservationRepo.save(ReservationMapper.mapToEntity(reservation, studentId, ReservationType.OPEN));
         return new ResponseEntity<>(ReservationMapper.mapToModel(reservationEntity), HttpStatus.OK);
-    }
-
-
-}
+    }}
