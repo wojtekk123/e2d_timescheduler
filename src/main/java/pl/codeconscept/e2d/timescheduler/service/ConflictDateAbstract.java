@@ -6,7 +6,7 @@ import java.util.List;
 
 public abstract class ConflictDateAbstract {
 
-    abstract protected  <T> List<T> idConflict(Date dateFrom, Date dateTo);
+    abstract protected   List<?> idConflict(Date dateFrom, Date dateTo);
 
     //dataStart form ride : 15:00:00
     //dateEnd form ride : 17:55:00

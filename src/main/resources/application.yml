@@ -1,12 +1,28 @@
-
 server:
   port: 8082
 
 spring:
+  mail:
+    default-encoding: UTF-8
+    host: smtp.gmail.com
+    username: e2scloudsender@gmail.com
+    password: codeconcept
+    port: 587
+    properties:
+      mail:
+        smtp:
+          port: 25
+          auth: true
+          starttls:
+            enable: true
+    protocol: smtp
+    test-connection: false
+  rabbitmq:
+    addresses: amqp://${RABBITMQ_USERNAME:rabbit}:${RABBITMQ_PASSWORD:rabbit}@${RABBITMQ_HOST:rabbitmq-service}:${RABBITMQ_PORT:5672}/${RABBITMQ_VHOST:rabbit}
+  application:
+    name: e2dtimescheduler
   main:
     allow-bean-definition-overriding: true
-  application:
-    name: e2d_timescheduler
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://${POSTGRES_HOST:postgres}:5432/${POSTGRES_NAME:postgres}?currentSchema=${POSTGRES_SCHEMA:${spring.application.name}}&stringtype=unspecified&ApplicationName=${spring.application.name}
@@ -18,22 +34,52 @@ spring:
     user: ${POSTGRES_USER:postgres}
     password: ${POSTGRES_PASSWORD:1234}
     baseline-on-migrate: true
-
+  cloud:
+   stream:
+     bindings:
+       timeschedulerNotificationConsumer:
+         destination: ${destination.name}
+         group: notification
+         consumer:
+           maxAttempts: 1
+       timeschedulerNotificationProducer:
+         destination: ${destination.name}
+         producer:
+           requiredGroups: notification
+     rabbit:
+       bindings:
+          timeschedulerNotificationConsumer:
+            consumer:
+              exchangeType: direct
+              bindQueue: false
+              autoBindDlq: true
+              republishToDlq: true
+              deadLetterExchange: ${destination.name}
+              maxConcurrency: 3
+          timeschedulerNotificationProducer:
+            producer:
+              exchangeType: direct
+              routingKeyExpression: '''notification-key'''
+              bindingRoutingKey: notification-key
+              autoBindDlq: true
+              deadLetterExchange: ${destination.name}
+              deadLetterRoutingKey: notification.dlq-key
+destination:
+  name: timescheduler.exchange
 management:
   context-path: /admin
-
 eureka:
-  password: password
-  instance:
-    hostname: ${HOST:localhost}
-    registryFetchIntervalSeconds: 3
-    leaseRenewalIntervalInSeconds: 5
-    statusPageUrlPath: ${management.context-path}/info
-    healthCheckUrlPath: ${management.context-path}/health
-    metadataMap:
-      instanceId: ${spring.application.name}
-      management:
+#  password: password
+#  instance:
+#    hostname: ${HOST:e2dtimescheduler}
+#    registryFetchIntervalSeconds: 3
+#    leaseRenewalIntervalInSeconds: 5
+#    statusPageUrlPath: ${management.context-path}/info
+#    healthCheckUrlPath: ${management.context-path}/health
+#    metadataMap:
+#      instanceId: ${spring.application.name}
+#      management:
   client:
     initialInstanceInfoReplicationIntervalSeconds: 5
     serviceUrl:
-      defaultZone: http://${DISCOVERY_HOST:${HOST:localhost}}:${DISCOVERY_PORT:8761}/eureka/
+      defaultZone: http://${DISCOVERY_HOST:${HOST:clouddiscovery}}:${DISCOVERY_PORT:8761}/eureka/

@@ -21,7 +21,7 @@ import pl.codeconscept.e2d.timescheduler.service.ReservationService;
 import pl.codeconscept.e2d.timescheduler.service.jwt.JwtAuthFilter;
 import pl.codeconscept.e2d.timescheduler.service.mapper.ReservationMapper;
 import pl.codeconscept.e2d.timescheduler.service.privilege.PrivilegeService;
-import pl.codeconscept.e2d.timescheduler.service.template.TemplateRestQueries;
+import pl.codeconscept.e2d.timescheduler.service.queries.TemplateRestQueries;
 
 import java.rmi.ConnectIOException;
 import java.text.ParseException;
@@ -63,7 +63,7 @@ public class ReservationServiceTest extends ConflictDateAbstract {
         BDDMockito.given(privilegeService.getRole()).willReturn("INSTRUCTOR");
         BDDMockito.given(privilegeService.getAuthId()).willReturn(1L);
         BDDMockito.given(jwtAuthFilter.getToken()).willReturn(token);
-        BDDMockito.given(templateRestQueries.getStudentId(token,1L)).willReturn(mockGetUser());
+        BDDMockito.given(templateRestQueries.getStudentByAuthId(token,1L)).willReturn(mockGetUser());
     }
 
     @Test

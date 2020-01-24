@@ -21,7 +21,7 @@ import pl.codeconscept.e2d.timescheduler.service.ConflictDateAbstract;
 import pl.codeconscept.e2d.timescheduler.service.RideService;
 import pl.codeconscept.e2d.timescheduler.service.jwt.JwtAuthFilter;
 import pl.codeconscept.e2d.timescheduler.service.privilege.PrivilegeService;
-import pl.codeconscept.e2d.timescheduler.service.template.TemplateRestQueries;
+import pl.codeconscept.e2d.timescheduler.service.queries.TemplateRestQueries;
 
 import java.rmi.ConnectIOException;
 import java.text.ParseException;
@@ -53,14 +53,14 @@ public class RideServiceTest extends ConflictDateAbstract {
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-dd hh:mm:ss");
 
     @Before
-    public void init() throws ParseException, ConnectIOException {
+    public void init() throws ParseException {
         MockitoAnnotations.initMocks(RideService.class);
         BDDMockito.given(rideRepo.findAll()).willReturn(mockPrepareGetRides());
         BDDMockito.given(rideRepo.findById(id)).willReturn(mockPrepareGetId());
         BDDMockito.given(privilegeService.getRole()).willReturn("INSTRUCTOR");
         BDDMockito.given(privilegeService.getAuthId()).willReturn(prepareMockInstructorId());
         BDDMockito.given(jwtAuthFilter.getToken()).willReturn(token);
-        BDDMockito.given(templateRestQueries.getInstructorId(token,1L)).willReturn(mockGetUser());
+        BDDMockito.given(templateRestQueries.getInstructorByAuthId(token,1L)).willReturn(mockGetUser());
     }
 
 
@@ -87,8 +87,6 @@ public class RideServiceTest extends ConflictDateAbstract {
         ResponseEntity<Void> delete = rideService.delete(id);
         Assert.assertEquals(delete.getStatusCode().value(), HttpStatus.valueOf(200).value());
     }
-
-
 
     private Optional<RideEntity> mockPrepareGetId() throws ParseException {
         return Optional.of(getRideEntities());

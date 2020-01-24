@@ -41,7 +41,10 @@ public class WebSercureConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/reservation/all").hasAnyRole("INSTRUCTOR","SCHOOL","STUDENT","ADMIN")
                 .antMatchers("/reservation/approve/**").hasAnyRole("INSTRUCTOR","SCHOOL","ADMIN")
                 .antMatchers("/reservation/decline/**").hasAnyRole("INSTRUCTOR","SCHOOL","ADMIN")
-                .anyRequest().denyAll()
+                .antMatchers("/workday/add").hasAnyRole("INSTRUCTOR","ADMIN","SCHOOL")
+                .antMatchers("/workday/delete/**").hasAnyRole("INSTRUCTOR","ADMIN")
+                .antMatchers("/workday/all").authenticated()
+                .anyRequest().permitAll()
                 .and()
                 .addFilter(jwtAuthFilter(authenticationManagerBean()))
                 .csrf().disable();

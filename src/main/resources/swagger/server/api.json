@@ -19,9 +19,88 @@
     {
       "name": "reservation",
       "description": "Operations about reservation"
+    },
+    {
+      "name": "workday",
+      "description": "Operations about working hours"
     }
   ],
   "paths": {
+
+    "/workday/add": {
+      "post": {
+        "tags": [
+          "workday"
+        ],
+        "summary": "added a when is workday",
+        "operationId": "addWorkday",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "workday",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Workday"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " object",
+            "schema": {
+              "$ref": "#/definitions/Workday"
+            }
+          }
+        }
+      }
+    },
+
+    "/workday/all": {
+      "get": {
+        "tags": [
+          "workday"
+        ],
+        "summary": "get all workdays",
+        "operationId": "getAllworkdays",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Workday"
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/workday/delete/{id}": {
+      "delete": {
+        "tags": [
+          "workday"
+        ],
+        "summary": "delete workday",
+        "operationId": "deleteWorkday",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+
+
     "/ride/add": {
       "post": {
         "tags": [
@@ -106,8 +185,6 @@
         }
       }
     },
-
-
     "/ride/start/{id}": {
       "patch": {
         "tags": [
@@ -131,8 +208,6 @@
         }
       }
     },
-
-
     "/ride/done/{id}": {
       "patch": {
         "tags": [
@@ -156,8 +231,6 @@
         }
       }
     },
-
-
     "/ride/cancel/{id}": {
       "patch": {
         "tags": [
@@ -181,15 +254,6 @@
         }
       }
     },
-
-
-
-
-
-
-
-
-
     "/reservation/add": {
       "post": {
         "tags": [
@@ -217,7 +281,6 @@
         }
       }
     },
-
     "/reservation/all": {
       "get": {
         "tags": [
@@ -226,12 +289,12 @@
         "summary": "get all reservations",
         "operationId": "getAllReservation",
         "responses": {
-          "200" : {
-            "description" : "successful operation",
-            "schema" : {
-              "type" : "array",
-              "items" : {
-                "$ref" : "#/definitions/Reservation"
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Reservation"
               }
             }
           }
@@ -261,7 +324,6 @@
         }
       }
     },
-
     "/reservation/approve/{id}": {
       "patch": {
         "tags": [
@@ -285,7 +347,6 @@
         }
       }
     },
-
     "/reservation/decline/{id}": {
       "patch": {
         "tags": [
@@ -309,10 +370,34 @@
         }
       }
     }
-
-
   },
   "definitions": {
+    "InfoToPrintDto": {
+      "type": "object",
+      "properties": {
+        "studentName": {
+          "type": "string"
+        },
+        "instructorName": {
+          "type": "string"
+        },
+        "instructorEmail": {
+          "type": "string"
+        }
+      }
+    },
+
+    "MessageDto": {
+      "type": "object",
+      "properties": {
+        "userInfo": {
+          "$ref": "#/definitions/InfoToPrintDto"
+        },
+        "reservation": {
+          "$ref": "#/definitions/Reservation"
+        }
+      }
+    },
 
     "UserId": {
       "type": "object",
@@ -323,10 +408,16 @@
         },
         "userName": {
           "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "schoolId": {
+          "type": "integer",
+          "format": "int64"
         }
       }
     },
-
     "Reservation": {
       "type": "object",
       "properties": {
@@ -391,7 +482,6 @@
         }
       }
     },
-
     "History": {
       "type": "object",
       "properties": {
@@ -412,7 +502,30 @@
           "type": "string"
         }
       }
+    },
+
+    "Workday": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "instructorId": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "startWork": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "endWork": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
     }
+
   },
   "externalDocs": {
     "description": "Find out more about Swagger",

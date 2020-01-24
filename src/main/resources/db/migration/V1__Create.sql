@@ -31,5 +31,14 @@ CREATE TABLE history
     action          VARCHAR(20),
     PRIMARY KEY (id)
 
+);
+
+CREATE TABLE workday
+(
+    id            SERIAL NOT NULL,
+    instructor_id BIGINT NOT NULL,
+    start_working TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    end_working   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
 
 )

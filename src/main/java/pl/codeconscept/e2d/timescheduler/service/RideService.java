@@ -19,9 +19,8 @@ import pl.codeconscept.e2d.timescheduler.service.mapper.HistoryMapper;
 import pl.codeconscept.e2d.timescheduler.service.mapper.ReservationMapper;
 import pl.codeconscept.e2d.timescheduler.service.mapper.RideMapper;
 import pl.codeconscept.e2d.timescheduler.service.privilege.PrivilegeService;
-import pl.codeconscept.e2d.timescheduler.service.template.TemplateRestQueries;
+import pl.codeconscept.e2d.timescheduler.service.queries.TemplateRestQueries;
 
-import java.rmi.ConnectIOException;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,7 +47,7 @@ public class RideService extends ConflictDateAbstract {
 
             if (!role.equals("ROLE_ADMIN")) {
                 List<RideEntity> rideEntities = idConflict(ride.getRideDataFrom(), ride.getRideDateTo());
-                Long instructorId = templateRestQueries.getInstructorId(token, authId).getId();
+                Long instructorId = templateRestQueries.getInstructorByAuthId(token, authId).getId();
 
                 if (rideEntities != null) {
                     rideEntities.forEach(e -> {
@@ -63,9 +62,7 @@ public class RideService extends ConflictDateAbstract {
             }
             return getRideResponseEntity(ride, ride.getInstructorId());
 
-        } catch (ConnectIOException e) {
-            throw new E2DIllegalArgument("problem with connection");
-        } catch (DataAccessException e) {
+        }  catch (DataAccessException e) {
             throw new E2DIllegalArgument("student already has ride : " + privilegeService.getAuthId());
         } catch (IllegalArgumentException e) {
             throw new E2DIllegalArgument("instructor already has a ride on this time : ");
@@ -83,7 +80,7 @@ public class RideService extends ConflictDateAbstract {
 
             if (!role.equals("ROLE_ADMIN")) {
                 RideEntity rideEntity = rideRepo.findById(id).orElseThrow(IllegalArgumentException::new);
-                Long instructorId = templateRestQueries.getInstructorId(token, authId).getId();
+                Long instructorId = templateRestQueries.getInstructorByAuthId(token, authId).getId();
 
                 if (!rideEntity.getInstructorId().equals(instructorId)) {
                     throw new RuntimeException();
@@ -92,8 +89,6 @@ public class RideService extends ConflictDateAbstract {
             rideRepo.deleteById(id);
             return ResponseEntity.ok().build();
 
-        } catch (ConnectIOException e) {
-            throw new E2DIllegalArgument("connection problem ");
         } catch (IllegalArgumentException e) {
             throw new E2DIllegalArgument("you can't delete user: " + id);
         } catch (RuntimeException e) {
@@ -159,12 +154,10 @@ public class RideService extends ConflictDateAbstract {
 
             ReservationMapper.mapToRideType(rideEntity, actionType);
             rideRepo.save(rideEntity);
-            UserId instructorId = templateRestQueries.getInstructorId(token, authId);
-            UserId studentId = templateRestQueries.getStudent(token, rideEntity.getStudentId());
+            UserId instructorId = templateRestQueries.getInstructorByAuthId(token, authId);
+            UserId studentId = templateRestQueries.getStudentById(token, rideEntity.getStudentId());
             historyService.save(HistoryMapper.mapToHistoryEntity(rideEntity, instructorId.getUserName(), studentId.getUserName(), actionType));
 
-        } catch (ConnectIOException e) {
-            throw new E2DIllegalArgument("Problem with connection");
         } catch (IllegalArgumentException e) {
             throw new E2DIllegalArgument("Wrong id: " + id);
         } catch (NullPointerException e) {
