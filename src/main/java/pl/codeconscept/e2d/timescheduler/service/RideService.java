@@ -9,9 +9,11 @@ import pl.codeconcept.e2d.e2dmasterdata.model.Ride;
 import pl.codeconcept.e2d.e2dmasterdata.model.UserId;
 import pl.codeconscept.e2d.timescheduler.database.entity.ReservationEntity;
 import pl.codeconscept.e2d.timescheduler.database.entity.RideEntity;
+import pl.codeconscept.e2d.timescheduler.database.entity.WorkdayEntity;
 import pl.codeconscept.e2d.timescheduler.database.enums.ReservationType;
 import pl.codeconscept.e2d.timescheduler.database.enums.ScheduleType;
 import pl.codeconscept.e2d.timescheduler.database.repository.RideRepo;
+import pl.codeconscept.e2d.timescheduler.database.repository.WorkdayRepo;
 import pl.codeconscept.e2d.timescheduler.exception.E2DIllegalArgument;
 import pl.codeconscept.e2d.timescheduler.exception.E2DMissingException;
 import pl.codeconscept.e2d.timescheduler.service.jwt.JwtAuthFilter;
@@ -23,6 +25,7 @@ import pl.codeconscept.e2d.timescheduler.service.queries.TemplateRestQueries;
 
 import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 
@@ -36,7 +39,7 @@ public class RideService extends ConflictDateAbstract {
     private final JwtAuthFilter jwtAuthFilter;
     private final ReservationService reservationService;
     private final HistoryService historyService;
-
+    private final WorkdayRepo workdayRepo;
 
     public ResponseEntity<Ride> save(Ride ride) {
         String token = jwtAuthFilter.getToken();
@@ -44,6 +47,13 @@ public class RideService extends ConflictDateAbstract {
         String role = privilegeService.getRole();
 
         try {
+
+            List<WorkdayEntity> check = workdayRepo.findByStartWorkingLessThanEqualAndEndWorkingGreaterThanEqual(ride.getRideDataFrom(), ride.getRideDateTo());
+
+            if (!check.isEmpty() || (ride.getRideDateTo().compareTo(ride.getRideDataFrom())) < 0) {
+                throw new NoSuchElementException();
+            }
+
 
             if (!role.equals("ROLE_ADMIN")) {
                 List<RideEntity> rideEntities = idConflict(ride.getRideDataFrom(), ride.getRideDateTo());
@@ -62,12 +72,14 @@ public class RideService extends ConflictDateAbstract {
             }
             return getRideResponseEntity(ride, ride.getInstructorId());
 
-        }  catch (DataAccessException e) {
+        } catch (DataAccessException e) {
             throw new E2DIllegalArgument("student already has ride : " + privilegeService.getAuthId());
         } catch (IllegalArgumentException e) {
             throw new E2DIllegalArgument("instructor already has a ride on this time : ");
         } catch (NullPointerException e) {
             throw new E2DMissingException("Student id :" + authId);
+        } catch (NoSuchElementException e) {
+            throw new E2DIllegalArgument("instructor does not working then or wrong date ");
         }
     }
 
@@ -98,13 +110,47 @@ public class RideService extends ConflictDateAbstract {
 
     public ResponseEntity<Ride> update(Long id, Ride ride) {
 
+        String role = privilegeService.getRole();
+        Long authId = privilegeService.getAuthId();
+        String token = jwtAuthFilter.getToken();
+
+
         try {
+            List<RideEntity> rideEntities = idConflict(ride.getRideDataFrom(), ride.getRideDateTo());
             RideEntity rideToChange = rideRepo.findById(id).orElseThrow(IllegalAccessError::new);
+
+
+            if ((rideEntities != null)||!(rideToChange.getType().toString().equals("PLANNED"))) {
+                throw new IllegalArgumentException(rideToChange.getType().toString());
+            }
+
+            if (!role.equals("ROLE_ADMIN")) {
+                UserId instructorByAuthId = templateRestQueries.getInstructorByAuthId(token, authId);
+
+                if (!(role.equals("ROLE_INSTRUCTOR") || instructorByAuthId.getId().equals(rideToChange.getInstructorId()))) {
+                    throw new NoSuchElementException();
+
+                }
+            }
+
             RideMapper.mapToExistingEntity(rideToChange, ride);
             rideRepo.save(rideToChange);
+
+//            UserId instructorById = templateRestQueries.getInstructorById(token, rideToChange.getInstructorId());
+//            UserId studentById = templateRestQueries.getStudentById(token, rideToChange.getId());
+//            historyService.save(HistoryMapper.mapToHistoryEntity(rideToChange,instructorById.getUserName(),studentById.getUserName(),"UPDATE"));
+
             return new ResponseEntity<>(RideMapper.mapToModel(rideToChange), HttpStatus.OK);
+
+        } catch (IllegalArgumentException e) {
+            throw new E2DIllegalArgument("ride isn't PLANNED or date are duplicated ");
+        } catch (NoSuchElementException e) {
+            throw new E2DIllegalArgument("no access ");
         } catch (RuntimeException e) {
             throw new E2DMissingException("update id: " + id);
+        } catch (Exception e){
+            e.printStackTrace();
+            throw new E2DIllegalArgument("something wrong ");
         }
     }
 
@@ -123,8 +169,8 @@ public class RideService extends ConflictDateAbstract {
 
     @Override
     protected List<RideEntity> idConflict(Date dateFrom, Date dateTo) {
-        List<RideEntity> allReservation = rideRepo.findAll();
-        List<RideEntity> collect = allReservation.stream().filter(e -> isWithinRange(e.getRideDateFrom(), e.getRideDateTo(), dateFrom, dateTo)).collect(Collectors.toList());
+        List<RideEntity> allRide = rideRepo.findAll();
+        List<RideEntity> collect = allRide.stream().filter(e -> isWithinRange(e.getRideDateFrom(), e.getRideDateTo(), dateFrom, dateTo)).collect(Collectors.toList());
 
         if (collect.isEmpty()) {
             return null;
@@ -156,7 +202,7 @@ public class RideService extends ConflictDateAbstract {
             rideRepo.save(rideEntity);
             UserId instructorId = templateRestQueries.getInstructorByAuthId(token, authId);
             UserId studentId = templateRestQueries.getStudentById(token, rideEntity.getStudentId());
-            historyService.save(HistoryMapper.mapToHistoryEntity(rideEntity, instructorId.getUserName(), studentId.getUserName(), actionType));
+            historyService.save(HistoryMapper.mapToHistoryEntity(rideEntity, instructorId.getUserName(), studentId.getUserName(), actionType.toString()));
 
         } catch (IllegalArgumentException e) {
             throw new E2DIllegalArgument("Wrong id: " + id);

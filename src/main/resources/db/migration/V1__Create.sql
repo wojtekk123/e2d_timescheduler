@@ -10,7 +10,7 @@ CREATE TABLE reservation
     PRIMARY KEY (id)
 );
 
-CREATE TABLE time_scheduler
+CREATE TABLE ride
 (
     id             SERIAL NOT NULL,
     instructor_id  BIGINT NOT NULL,
@@ -25,7 +25,7 @@ CREATE TABLE time_scheduler
 CREATE TABLE history
 (
     id              SERIAL NOT NULL,
-    id_scheduler    BIGINT REFERENCES time_scheduler (id),
+    id_scheduler    BIGINT REFERENCES ride (id),
     instructor_name VARCHAR(20),
     student_name    VARCHAR(20),
     action          VARCHAR(20),

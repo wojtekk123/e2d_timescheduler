@@ -6,12 +6,12 @@ import pl.codeconscept.e2d.timescheduler.database.enums.ScheduleType;
 
 public class HistoryMapper {
 
-    public static HistoryEntity mapToHistoryEntity(RideEntity rideEntity, String instructorName, String studentName, ScheduleType type) {
+    public static HistoryEntity mapToHistoryEntity(RideEntity rideEntity, String instructorName, String studentName, String type) {
         HistoryEntity historyEntity = new HistoryEntity();
         historyEntity.setRideEntity(rideEntity);
         historyEntity.setInstructorName(instructorName);
         historyEntity.setStudentName(studentName);
-        historyEntity.setAction(type.toString());
+        historyEntity.setAction(type);
         return historyEntity;
     }
 }

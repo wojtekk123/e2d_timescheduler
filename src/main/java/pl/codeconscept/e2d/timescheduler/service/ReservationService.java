@@ -48,14 +48,15 @@ public class ReservationService extends ConflictDateAbstract {
         String role = privilegeService.getRole();
 
         try {
-            List<WorkdayEntity> check = workdayRepo.findByStartWorkingLessThanEqualAndEndWorkingGreaterThanEqual(reservation.getRideDataFrom(), reservation.getRideDateTo());
+            List<WorkdayEntity> check = workdayRepo.findByStartWorkingLessThanEqualAndEndWorkingGreaterThanEqual(reservation.getRideDataFrom(), reservation.getRideDateTo()); //check if the instructor is working
 
-            if (check.isEmpty() || (reservation.getRideDateTo().compareTo(reservation.getRideDataFrom())) < 0) {
+            if (!check.isEmpty() || (reservation.getRideDateTo().compareTo(reservation.getRideDataFrom())) < 0) {
                 throw new NoSuchElementException();
+
             }
 
             if (!role.equals("ROLE_ADMIN")) {
-                List<ReservationEntity> reservationEntities = idConflict(reservation.getRideDataFrom(), reservation.getRideDateTo());
+                List<ReservationEntity> reservationEntities = idConflict(reservation.getRideDataFrom(), reservation.getRideDateTo()); //check if the rides collide
 
                 if (reservationEntities != null) {
                     Long instructorId = reservation.getInstructorId();

@@ -35,7 +35,7 @@ public class RideMapper {
     public static void mapToExistingEntity(RideEntity rideToChange, Ride ride) {
         rideToChange.setStudentId(ride.getStudentId());
         rideToChange.setCarId(ride.getCarId());
-        rideToChange.setId(ride.getInstructorId());
+        rideToChange.setInstructorId(ride.getInstructorId());
         rideToChange.setRideDateFrom(ride.getRideDataFrom());
         rideToChange.setRideDateTo(ride.getRideDateTo());
     }

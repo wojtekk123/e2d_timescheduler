@@ -38,6 +38,10 @@ public class WorkdayService {
         try {
             List<WorkdayEntity> list = workdayRepo.findByStartWorkingLessThanEqualAndEndWorkingGreaterThanEqual(workday.getStartWork(), workday.getEndWork());
 
+            if (!list.isEmpty()||(workday.getStartWork().compareTo(workday.getEndWork())) > 0)  {
+                throw new NoSuchElementException();
+            }
+
             UserId instructorById = null;
             UserId schoolByAuthI = null;
             UserId instructorByAuthId = null;
@@ -52,9 +56,7 @@ public class WorkdayService {
                     break;
             }
 
-            if (!list.isEmpty()) {
-                throw new NoSuchElementException();
-            }
+
 
             if (!(role.equals("ROLE_ADMIN") || (role.equals("ROLE_SCHOOL") && (instructorById.getSchoolId().equals(schoolByAuthI.getSchoolId()))))) {
 

@@ -80,11 +80,11 @@ public class ReservationServiceTest extends ConflictDateAbstract {
         Assert.assertNull(reservationEntities);
     }
 
-    @Test //  (expected = E2DMissingException.class)
-    public void shouldBeEqual()  {
-        ResponseEntity<Void> delete = reservationService.delete(id);
-        Assert.assertEquals(delete.getStatusCode().value(), HttpStatus.valueOf(200).value());
-    }
+//    @Test //  (expected = E2DMissingException.class)
+//    public void shouldBeEqual()  {
+//        ResponseEntity<Void> delete = reservationService.delete(id);
+//        Assert.assertEquals(delete.getStatusCode().value(), HttpStatus.valueOf(200).value());
+//    }
     @Test  (expected = E2DMissingException.class)
     public void shouldThrowExceptionIfEquals() throws ParseException {
         reservationService.save(ReservationMapper.mapToModel(getReservationEntities()));

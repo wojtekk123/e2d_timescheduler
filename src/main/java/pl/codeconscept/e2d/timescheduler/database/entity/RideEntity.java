@@ -13,7 +13,7 @@ import java.util.Date;
 @NoArgsConstructor
 @RequiredArgsConstructor
 @Entity
-@Table (name = "time_scheduler")
+@Table (name = "ride")
 public class RideEntity {
 
     @Id

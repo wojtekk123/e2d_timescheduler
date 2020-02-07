@@ -23,9 +23,34 @@
     {
       "name": "workday",
       "description": "Operations about working hours"
+    },
+    {
+      "name": "history",
+      "description": "Operations about history"
     }
   ],
   "paths": {
+
+    "/history/getAll": {
+      "get": {
+        "tags": [
+          "holiday"
+        ],
+        "summary": "get all history",
+        "operationId": "getAllHistory",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/History"
+              }
+            }
+          }
+        }
+      }
+    },
 
     "/workday/add": {
       "post": {
