@@ -30,28 +30,6 @@
     }
   ],
   "paths": {
-
-    "/history/getAll": {
-      "get": {
-        "tags": [
-          "holiday"
-        ],
-        "summary": "get all history",
-        "operationId": "getAllHistory",
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/History"
-              }
-            }
-          }
-        }
-      }
-    },
-
     "/workday/add": {
       "post": {
         "tags": [
@@ -153,6 +131,36 @@
         }
       }
     },
+    "/ride/get/{id}": {
+      "get": {
+        "tags": [
+          "ride"
+        ],
+        "summary": "get existing ride",
+        "operationId": "getRide",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int64",
+            "schema": {
+              "$ref": "#/definitions/Ride"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": " object",
+            "schema": {
+              "$ref": "#/definitions/Ride"
+            }
+          }
+        }
+      }
+    },
+
     "/ride/update/{id}": {
       "put": {
         "tags": [

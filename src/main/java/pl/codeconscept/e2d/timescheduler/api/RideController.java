@@ -21,6 +21,9 @@ public class RideController implements RideApi {
     }
 
     @Override
+    public ResponseEntity<Ride> getRide(@Valid Long id) { return rideService.get(id); }
+
+    @Override
     public ResponseEntity<Void> deleteRide(Long id) {
         return rideService.delete(id);
     }

@@ -4,10 +4,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.BDDMockito;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,10 +17,12 @@ import pl.codeconscept.e2d.timescheduler.exception.E2DMissingException;
 import pl.codeconscept.e2d.timescheduler.service.ConflictDateAbstract;
 import pl.codeconscept.e2d.timescheduler.service.RideService;
 import pl.codeconscept.e2d.timescheduler.service.jwt.JwtAuthFilter;
+import pl.codeconscept.e2d.timescheduler.service.mapper.RideMapper;
 import pl.codeconscept.e2d.timescheduler.service.privilege.PrivilegeService;
 import pl.codeconscept.e2d.timescheduler.service.queries.TemplateRestQueries;
 
-import java.rmi.ConnectIOException;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -45,11 +44,14 @@ public class RideServiceTest extends ConflictDateAbstract {
     @Mock
     PrivilegeService privilegeService;
 
+    @Mock
+    RideEntity rideEntity;
+
     @InjectMocks
     RideService rideService;
 
-    private Long id =1L;
-    private  String token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJpcmVrIiwicm9sZSI6IlJPTEVfSU5TVFJVQ1RPUiIsImlkIjo2LCJpYXQiOjE1NzY4MzE3NjIsImV4cCI6MTU3Njg0Mzc2Mn0.NZtEjNAIM5yApNk-en3WkwGvtLt9riDCPLa8EwuW_xQ3EE4UkDtjtK2DsLSZ-VXaY7f-f_qeQpyGc1NcTpsAxg";
+    private Long id = 1L;
+    private String token = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJpcmVrIiwicm9sZSI6IlJPTEVfSU5TVFJVQ1RPUiIsImlkIjo2LCJpYXQiOjE1NzY4MzE3NjIsImV4cCI6MTU3Njg0Mzc2Mn0.NZtEjNAIM5yApNk-en3WkwGvtLt9riDCPLa8EwuW_xQ3EE4UkDtjtK2DsLSZ-VXaY7f-f_qeQpyGc1NcTpsAxg";
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-dd hh:mm:ss");
 
     @Before
@@ -57,10 +59,10 @@ public class RideServiceTest extends ConflictDateAbstract {
         MockitoAnnotations.initMocks(RideService.class);
         BDDMockito.given(rideRepo.findAll()).willReturn(mockPrepareGetRides());
         BDDMockito.given(rideRepo.findById(id)).willReturn(mockPrepareGetId());
-        BDDMockito.given(privilegeService.getRole()).willReturn("INSTRUCTOR");
+        BDDMockito.given(privilegeService.getRole()).willReturn("ROLE_INSTRUCTOR");
         BDDMockito.given(privilegeService.getAuthId()).willReturn(prepareMockInstructorId());
         BDDMockito.given(jwtAuthFilter.getToken()).willReturn(token);
-        BDDMockito.given(templateRestQueries.getInstructorByAuthId(token,1L)).willReturn(mockGetUser());
+        BDDMockito.given(templateRestQueries.getInstructorByAuthId(token, 1L)).willReturn(mockGetUser());
     }
 
 
@@ -82,8 +84,18 @@ public class RideServiceTest extends ConflictDateAbstract {
         rideService.save(getRide());
     }
 
+    @Test
+    public void shouldReturnRideById() {
+
+        Optional<RideEntity> rideEntity = rideRepo.findById(1L);
+        ResponseEntity<Ride> responseEntity = rideService.get(1L);
+        Long responseId = responseEntity.getBody().getId();
+        Long id = RideMapper.mapToModel(rideEntity.get()).getId();
+        assertThat(id).isEqualTo(responseId);
+    }
+
     @Test //  (expected = E2DMissingException.class)
-    public void shouldBeEqual()  {
+    public void shouldBeEqual() {
         ResponseEntity<Void> delete = rideService.delete(id);
         Assert.assertEquals(delete.getStatusCode().value(), HttpStatus.valueOf(200).value());
     }
@@ -98,7 +110,7 @@ public class RideServiceTest extends ConflictDateAbstract {
         return rides;
     }
 
-    private Long prepareMockInstructorId () {
+    private Long prepareMockInstructorId() {
         return 1L;
     }
 
@@ -127,7 +139,7 @@ public class RideServiceTest extends ConflictDateAbstract {
         return ride;
     }
 
-    private UserId mockGetUser(){
+    private UserId mockGetUser() {
         UserId userId = new UserId();
         userId.setUserName("Wojtek");
         userId.setId(1L);

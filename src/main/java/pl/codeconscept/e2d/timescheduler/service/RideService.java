@@ -108,6 +108,29 @@ public class RideService extends ConflictDateAbstract {
         }
     }
 
+    public ResponseEntity<Ride> get(Long id) {
+        String role = privilegeService.getRole();
+        Long authId = privilegeService.getAuthId();
+        String token = jwtAuthFilter.getToken();
+
+        RideEntity rideEntity = new RideEntity();
+
+        try {
+            if (!role.equals("ROLE_ADMIN")) {
+                rideEntity = rideRepo.findById(id).orElseThrow(IllegalArgumentException::new);
+                Long instructorId = templateRestQueries.getInstructorByAuthId(token, authId).getId();
+
+                if (!rideEntity.getInstructorId().equals(instructorId)) {
+                    throw new RuntimeException();
+                }
+            }
+
+        } catch (IllegalArgumentException e) {
+            throw new E2DIllegalArgument("you can't get ride: " + id);
+        }
+        return new ResponseEntity<>(RideMapper.mapToModel(rideEntity), HttpStatus.OK);
+    }
+
     public ResponseEntity<Ride> update(Long id, Ride ride) {
 
         String role = privilegeService.getRole();

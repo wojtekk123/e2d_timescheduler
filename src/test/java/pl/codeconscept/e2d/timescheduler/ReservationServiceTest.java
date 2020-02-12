@@ -59,11 +59,9 @@ public class ReservationServiceTest extends ConflictDateAbstract {
     public void init() throws ParseException, ConnectIOException {
         MockitoAnnotations.initMocks(ReservationEntity.class);
         BDDMockito.given(reservationRepo.findAll()).willReturn(mockPrepareGetRides());
-        BDDMockito.given(reservationRepo.findById(id)).willReturn(mockPrepareGetId());
         BDDMockito.given(privilegeService.getRole()).willReturn("INSTRUCTOR");
         BDDMockito.given(privilegeService.getAuthId()).willReturn(1L);
         BDDMockito.given(jwtAuthFilter.getToken()).willReturn(token);
-        BDDMockito.given(templateRestQueries.getStudentByAuthId(token,1L)).willReturn(mockGetUser());
     }
 
     @Test

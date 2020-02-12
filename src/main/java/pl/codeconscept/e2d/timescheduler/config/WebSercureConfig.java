@@ -32,6 +32,7 @@ public class WebSercureConfig extends WebSecurityConfigurerAdapter {
 
         http.authorizeRequests()
                 .antMatchers("/ride/add").hasAnyRole("INSTRUCTOR","ADMIN")
+                .antMatchers("/ride/get/**").hasAnyRole("INSTRUCTOR","ADMIN")
                 .antMatchers("/ride/delete/**").hasAnyRole("INSTRUCTOR","SCHOOL","ADMIN")
                 .antMatchers("/ride/start/**").hasAnyRole("INSTRUCTOR","SCHOOL","ADMIN")
                 .antMatchers("/ride/cancel/**").hasAnyRole("INSTRUCTOR","SCHOOL","ADMIN")
