@@ -124,10 +124,10 @@ public class RideService extends ConflictDateAbstract {
                     throw new RuntimeException();
                 }
             }
-
         } catch (IllegalArgumentException e) {
             throw new E2DIllegalArgument("you can't get ride: " + id);
         }
+        rideEntity = rideRepo.findById(id).orElseThrow(IllegalArgumentException::new);
         return new ResponseEntity<>(RideMapper.mapToModel(rideEntity), HttpStatus.OK);
     }
 
